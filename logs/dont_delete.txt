@@ -1,0 +1,1 @@
+Do not delete 'logs' folder as it is used for storing logs
