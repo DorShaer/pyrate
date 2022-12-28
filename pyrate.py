@@ -27,7 +27,7 @@ if sys.version_info < (3, 9):
 parser = argparse.ArgumentParser()
 parser.add_argument("--url", type=str, help="URL to send requests to")
 parser.add_argument("--rate", type=int, default=5, help="number of requests per second, deafult is 5")
-parser.add_argument("--log", action="store_true", help="save a log file locally in /tmp with the URL as the file name")
+parser.add_argument("--log", action="store_true", help="save a log file locally in logs folder with the URL as the file name")
 
 args = parser.parse_args()
 
