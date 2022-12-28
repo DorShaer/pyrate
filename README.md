@@ -37,15 +37,9 @@ the number of requests availabe in 1 minute.
 
 ```
 
-Debug files will be saved to the `/tmp/[hostname]` folder, and will be named as `[hostname].random_number.html`
-those files can be easily opened with a browser to see the response.
+Debug files will be saved to the `logs/[hostname]` folder.
 
 ### Using Docker
-
-using docker is as simple as:
-`docker run -it pyrate --url https://example.com/`
-
-or if you want to build it yourself:
 
 1. git clone this repo
 2. `cd` into the repo
