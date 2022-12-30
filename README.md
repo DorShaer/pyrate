@@ -13,11 +13,15 @@ Python Rate Limit tester
 
 The `pyrate` application takes a few arguments:
 
-1. `--url` - The URL to test
-2. `--rate` - umber of requests per second, deafult is 5
+1. `--url` - the URL to test
+2. `--rate` - number of requests per second, deafult is 5
 3. `--log` - save a log file locally in logs/ with the URL as the file name
+4. `--body` - add a custom request body to send with each request, default is None
+5. `--headers` - headers to send with each request separated by space
+6. `--method` - HTTP method to use
+7. `--verbose` - print the response body for each request
 
-`python3 pyrate --url https://example.com/`
+`python3 pyrate --url https://example.com/ --rate 1 --method POST --body "id=1" --headers "Content-Type: application/json" "Authorization:Bearer 12345"`
 
 ```bash
 ❯ python3 pyrate.py --url https://brokencrystals.com --rate 1 
