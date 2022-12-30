@@ -11,7 +11,7 @@ Python Rate Limit tester
 
 ## Usage
 
-The `pyrate` application takes a few arguments:
+The `pyrate` application takes few arguments:
 
 1. `--url` - the URL to test
 2. `--rate` - number of requests per second, deafult is 5
