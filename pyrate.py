@@ -10,7 +10,7 @@ from texttable import Texttable
 from termcolor import colored
 
 # Author: Dor Shaer
-# Version: 1.0
+# Version: 1.1
 #
 # This script sends HTTP requests to a specified URL at a specified rate and
 # reports the status codes of the responses.
@@ -25,9 +25,12 @@ if sys.version_info < (3, 9):
 
 # Set up argument parser
 parser = argparse.ArgumentParser()
+
 parser.add_argument("--url", type=str, help="URL to send requests to")
-parser.add_argument("--rate", type=int, default=5, help="number of requests per second, deafult is 5")
+parser.add_argument("--headers", type=str, help="headers to send with each request (format: 'key:value')")
 parser.add_argument("--log", action="store_true", help="save a log file locally in logs folder with the URL as the file name")
+parser.add_argument("--rate", type=int, default=5, help="number of requests per second, deafult is 5")
+parser.add_argument("--verbose", action="store_true", help="print the response body for each request")
 
 args = parser.parse_args()
 
@@ -59,9 +62,9 @@ if not url:
 print(colored("[+] Testing " + url, 'green', attrs=['bold']))
 
 
+# Extract the base name of the URL
+url_file_name = re.search(r"https?://([^/\.]+)\.([^/]+)", url).group(1)
 
-# Create a valid file name from the URL
-url_file_name = re.sub(r"https?://", "", url)
 
 status_codes = {}
 total_requests = 0
@@ -70,7 +73,13 @@ async def send_request():
     global total_requests
     async with aiohttp.ClientSession() as session:
         try:
-            async with session.get(url) as response:
+            # Parse the headers argument into a dictionary
+            headers = dict(x.split(":") for x in args.headers.split(",")) if args.headers else {}
+            
+            # Send the request with the specified headers
+            async with session.get(url, headers=headers) as response:
+                if args.verbose:
+                    print(await response.text())
                 if response.status in status_codes:
                     status_codes[response.status] += 1
                 else:
@@ -83,20 +92,23 @@ async def send_request():
                         log_file.write(f"Request was sent, got status code {response.status}\n")
                 total_requests += 1
 
-        #Catch exception if errors displayed
+        # Catch exception if errors displayed
         except Exception as e:
             if "Error" in status_codes:
                 status_codes["Error"] += 1
             else:
                 status_codes["Error"] = 1
             if args.log:
-                with open(f"/tmp/{url_file_name}", "a") as log_file:
+                if not os.path.exists("./logs"):
+                    os.makedirs("./logs")
+                log_file_path = f"./logs/{url_file_name}"
+                with open(log_file_path, "a") as log_file:
                     log_file.write(f"Error occurred while sending request: {e}\n")
 
-async def main():
+async def main(start_index=0):
     # Send the requests
     with tqdm(total=num_requests, bar_format="{l_bar}{bar} [{elapsed}<{remaining}, {rate_fmt}]") as pbar:
-        for i in range(num_requests):
+        for i in range(start_index, num_requests):
             await asyncio.gather(send_request())
             pbar.update(1)
 
@@ -110,6 +122,7 @@ if __name__ == "__main__":
         else:
             print(colored("Exiting... ", 'red', attrs=['bold']))
             exit()
+
 
 
     # Print results in a table with borders
