@@ -20,8 +20,8 @@ from termcolor import colored
 
 
 #Test for python version
-if sys.version_info < (3, 9):
-    sys.stdout.write("Sorry, pyrate requires Python 3.9 or higher\n")
+if sys.version_info > (3, 9):
+    sys.stdout.write("Sorry, pyrate is not compitable with python3.11 yet\n")
     sys.exit(1)
 
 
