@@ -1,5 +1,6 @@
-aiohttp==3.8.1
-requests==2.25.1
+aiohttp==3.8.3
+fake_useragent==1.1.1
+requests==2.28.1
 termcolor==2.1.1
-texttable==1.6.3
-tqdm==4.57.0
+texttable==1.6.7
+tqdm==4.64.1
