@@ -19,12 +19,6 @@ from termcolor import colored
 
 
 
-#Test for python version
-if sys.version_info > (3, 9):
-    sys.stdout.write("Sorry, pyrate is not compitable with python3.11 yet\n")
-    sys.exit(1)
-
-
 # Set up argument parser
 parser = argparse.ArgumentParser()
 
@@ -32,7 +26,7 @@ parser.add_argument("--url", type=str, help="URL to send requests to")
 parser.add_argument("--body", type=str, help="request body to send with each request")
 parser.add_argument("--headers", type=str, nargs='+', help='headers to send with each request separated by space (example: "Content-Type: application/json" "Authorization: Bearer 12345")')
 parser.add_argument("--log", action="store_true", help="save a log file locally in logs folder with the URL as the file name")
-parser.add_argument("--method", type=str, help="HTTP method to use, example: --method POST")
+parser.add_argument("--method", type=str, default="GET", help="HTTP method to use, example: --method POST")
 parser.add_argument("--rate", type=int, default=5, help="number of requests per second, deafult is 5")
 parser.add_argument("--verbose", action="store_true", help="print the response body for each request")
 
@@ -113,7 +107,7 @@ async def send_request(method, request_body=None):
             if args.log:
                 if not os.path.exists("./logs"):
                     os.makedirs("./logs")
-                log_file_path = f"./logs/{url_file_name}"
+                log_file_path = f"./logs/{url_file_name}.log"
                 with open(log_file_path, "a") as log_file:
                     if args.verbose:
                         log_file.write(f"Response body:\n{response.text}\n")
@@ -127,7 +121,7 @@ async def send_request(method, request_body=None):
             if args.log:
                 if not os.path.exists("./logs"):
                     os.makedirs("./logs")
-                log_file_path = f"./logs/{url_file_name}"
+                log_file_path = f"./logs/{url_file_name}.log"
                 with open(log_file_path, "a") as log_file:
                     log_file.write(f"{method} Request {request_id} was sent, got error {e}\n")
             total_requests += 1
