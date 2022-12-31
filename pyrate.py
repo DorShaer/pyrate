@@ -7,12 +7,14 @@ import asyncio
 import aiohttp
 import requests
 import argparse
+import fake_useragent
 from tqdm import tqdm
 from texttable import Texttable
 from termcolor import colored
 
+
 # Author: Dor Shaer
-# Version: 1.2
+# Version: 1.3
 #
 # This script sends HTTP requests to a specified URL at a specified rate and
 # reports the status codes of the responses.
@@ -29,6 +31,8 @@ parser.add_argument("--log", action="store_true", help="save a log file locally 
 parser.add_argument("--method", type=str, default="GET", help="HTTP method to use, example: --method POST")
 parser.add_argument("--rate", type=int, default=5, help="number of requests per second, deafult is 5")
 parser.add_argument("--verbose", action="store_true", help="print the response body for each request")
+parser.add_argument("--random-agent", action="store_true", help="send a random user agent with each request")
+
 
 args = parser.parse_args()
 
@@ -43,8 +47,10 @@ except ValueError:
     print(colored("Error: Invalid value for rate. Rate must be a positive integer.", 'red', attrs=['bold']))
     exit(1)
 
-# Set the URL to send the requests to
-url = args.url
+# Check if the URL starts with "http://" or "https://"
+if not args.url.startswith("http://") and not args.url.startswith("https://"):
+    print(colored("Could not get HTTP/HTTPS in the arguments, adding https:// by default" , 'yellow', attrs=['bold']))
+    url = "https://" + args.url
 
 #Get the external IP
 r = requests.get("https://api.ipify.org")
@@ -78,7 +84,11 @@ async def send_request(method, request_body=None):
             # Parse the headers argument into a dictionary
             headers = {x.split(":")[0]: x.split(":")[1] for x in args.headers} if args.headers else {}
 
-            # Send the request with the specified method and headers
+            # Set the user agent to a random user agent if the --random-agent flag is set
+            if args.random_agent:
+                headers["User-Agent"] = fake_useragent.UserAgent().random	
+
+            #Check if request body argument specified
             if request_body is not None:
                 # Send the request with the specified request body
                 async with session.request(method, url, headers=headers, data=request_body) as response:
