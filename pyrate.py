@@ -14,7 +14,7 @@ from termcolor import colored
 
 
 # Author: Dor Shaer
-# Version: 1.3
+# Version: 1.4
 #
 # This script sends HTTP requests to a specified URL at a specified rate and
 # reports the status codes of the responses.
@@ -47,10 +47,21 @@ except ValueError:
     print(colored("Error: Invalid value for rate. Rate must be a positive integer.", 'red', attrs=['bold']))
     exit(1)
 
-# Check if the URL starts with "http://" or "https://"
-if not args.url.startswith("http://") and not args.url.startswith("https://"):
-    print(colored("Could not get HTTP/HTTPS in the arguments, adding https:// by default" , 'yellow', attrs=['bold']))
-    url = "https://" + args.url
+# Set the URL to send the requests to
+url = args.url
+
+# Check if the URL is specified in the arguments
+if url:
+    # Check if the URL starts with "http://" or "https://"
+    if not url.startswith("http://") and not url.startswith("https://"):
+        print(colored("Could not get HTTP/HTTPS in the arguments, adding https:// by default" , 'yellow', attrs=['bold']))
+        url = "https://" + url
+else:
+    # Prompt the user to enter a URL if it is not specified in the arguments
+    url = input("Enter the URL to send requests to: ")    
+    if not url.startswith("http://") and not url.startswith("https://"):
+        print(colored("Could not get HTTP/HTTPS in the arguments, adding https:// by default" , 'yellow', attrs=['bold']))
+        url = "https://" + url
 
 #Get the external IP
 r = requests.get("https://api.ipify.org")
@@ -60,11 +71,6 @@ print(colored("[+] External IP: " + ip, 'green', attrs=['bold']))
 # Calculate the total number of requests to send
 num_requests = rate * 60
 print(colored("[+] Total requests: " + str(num_requests), 'green', attrs=['bold']))
-if not url:
-    # Prompt the user to enter a URL
-    url = input("Enter the URL to send requests to: ")
-print(colored("[+] Testing " + url, 'green', attrs=['bold']))
-
 
 # Extract the base name of the URL
 url_file_name = re.search(r"https?://([^/\.]+)\.([^/]+)", url).group(1)
@@ -86,7 +92,7 @@ async def send_request(method, request_body=None):
 
             # Set the user agent to a random user agent if the --random-agent flag is set
             if args.random_agent:
-                headers["User-Agent"] = fake_useragent.UserAgent().random	
+                headers["User-Agent"] = fake_useragent.UserAgent().random   
 
             #Check if request body argument specified
             if request_body is not None:
@@ -159,6 +165,6 @@ if __name__ == "__main__":
     table = Texttable()
     table.add_rows([["Total Requests", "Status Code"]])
     for status_code, count in status_codes.items():
-    	table.add_row([count, status_code])
+        table.add_row([count, status_code])
     table.set_deco(Texttable.BORDER | Texttable.HEADER)
     print(table.draw())
