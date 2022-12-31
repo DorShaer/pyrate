@@ -84,6 +84,7 @@ total_requests = 0
 async def send_request(method, request_body=None):
     global total_requests
     request_id = secrets.token_hex(3)  # Generate a unique ID for the request
+    response_id = request_id
     start_time = time.perf_counter()
     async with aiohttp.ClientSession() as session:
         try:
@@ -98,10 +99,11 @@ async def send_request(method, request_body=None):
             if request_body is not None:
                 # Send the request with the specified request body
                 async with session.request(method, url, headers=headers, data=request_body) as response:
-                    response_id = secrets.token_hex(3)  # Generate a unique ID for the response
                     elapsed_time = time.perf_counter() - start_time
                     if args.verbose:
-                        print(f"Request {request_id} sent. Response {response_id} received with status code {response.status} in {elapsed_time:.2f} seconds\n")
+                        print(f"Request {request_id} sent. Status: {response.status} in {elapsed_time:.2f} seconds\n")
+                        print(f"Got Reponse {request_id}:\n")
+                        print(f"Response Body: {await response.text()}\n")
                     if response.status not in status_codes:
                         status_codes[response.status] = 1
                     else:
@@ -110,10 +112,11 @@ async def send_request(method, request_body=None):
             else:
                 # Send the request without a request body
                 async with session.request(method, url, headers=headers) as response:
-                    response_id = secrets.token_hex(3)  # Generate a unique ID for the response
                     elapsed_time = time.perf_counter() - start_time
                     if args.verbose:
-                        print(f"{method} Request {request_id} sent. Response {response_id} received with status code {response.status} in {elapsed_time:.2f} seconds\n")
+                        print(f"Request {request_id} sent. Status: {response.status} in {elapsed_time:.2f} seconds\n")
+                        print(f"Got Reponse {request_id}:\n")
+                        print(f"Response Body: {await response.text()}\n")
                     if response.status not in status_codes:
                         status_codes[response.status] = 1
                     else:
