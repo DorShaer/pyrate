@@ -59,5 +59,5 @@ Debug files will be saved to the `logs/[hostname]` folder.
 - [Dor Shaer](https://github.com/DorShaer) - creator and maintainer
 
 ## Credits
-  All WAF signatures are taken from the awesome library wafalyzer
+  All WAF signatures logic were taken from the awesome library wafalyzer
 - https://github.com/NeuraLegion/wafalyzer 
