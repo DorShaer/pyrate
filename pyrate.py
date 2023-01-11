@@ -102,66 +102,66 @@ async def send_request(method, request_body=None):
     response_id = request_id
     start_time = time.perf_counter()
     async with aiohttp.ClientSession() as session:
-        # try:
-        # Parse the headers argument into a dictionary
-        headers = {x.split(":")[0]: x.split(":")[1] for x in args.headers} if args.headers else {}
+        try:
+            # Parse the headers argument into a dictionary
+            headers = {x.split(":")[0]: x.split(":")[1] for x in args.headers} if args.headers else {}
 
-        # Set the user agent to a random user agent if the --random-agent flag is set
-        if args.random_agent:
-            headers["User-Agent"] = fake_useragent.UserAgent().random   
+            # Set the user agent to a random user agent if the --random-agent flag is set
+            if args.random_agent:
+                headers["User-Agent"] = fake_useragent.UserAgent().random   
 
-        #Check if request body argument specified
-        if request_body is not None:
-            # Send the request with the specified request body
-            async with session.request(method, url, headers=headers, data=request_body) as response:
-                elapsed_time = time.perf_counter() - start_time
-                if args.verbose:
-                    print(f"Request {request_id} sent. Status: {response.status} in {elapsed_time:.2f} seconds\n")
-                    print(f"Custom Headers: {headers}\n")
-                    print(f"Request Body: {request_body}\n")
-                    print(f"Got Reponse {request_id}:\n")
-                    print(f"URL: {url}\n")
-                    print(f"Response Body:\n {await response.text()}\n")
-                    print(f"Response Headers:\n {response.headers}\n")
-                if response.status not in status_codes:
-                    status_codes[response.status] = 1
-                else:
-                    status_codes[response.status] += 1
-                total_requests += 1
-                if args.waf:
-                    check_waf(response.headers, await response.text())
-        else:
-            # Send the request without a request body
-            async with session.request(method, url, headers=headers) as response:
-                elapsed_time = time.perf_counter() - start_time
-                if args.verbose:
-                    print(f"Request {request_id} sent. Status: {response.status} in {elapsed_time:.2f} seconds\n")
-                    print(f"Custom Headers: {headers}\n")
-                    print(f"Request Body: {request_body}\n")
-                    print(f"Got Reponse {request_id}:\n")
-                    print(f"URL: {url}\n")
-                    print(f"Response Body:\n {await response.text()}\n")
-                    print(f"Response Headers:\n {response.headers}\n")
-                if response.status not in status_codes:
-                    status_codes[response.status] = 1
-                else:
-                    status_codes[response.status] += 1
-                total_requests += 1
-                if args.waf:
-                    check_waf(response.headers, await response.text())
-        if args.log:
-            if not os.path.exists("./logs"):
-                os.makedirs("./logs")
-            log_file_path = f"./logs/{url_file_name}.log"
-            with open(log_file_path, "a") as log_file:
-                if args.verbose:
-                    log_file.write(f"Response body:\n{response.text}\n")
-                log_file.write(f"{method} Request {request_id} sent. Response {response_id} received with status code {response.status} in {elapsed_time:.2f} seconds\n")
+            #Check if request body argument specified
+            if request_body is not None:
+                # Send the request with the specified request body
+                async with session.request(method, url, headers=headers, data=request_body) as response:
+                    elapsed_time = time.perf_counter() - start_time
+                    if args.verbose:
+                        print(f"Request {request_id} sent. Status: {response.status} in {elapsed_time:.2f} seconds\n")
+                        print(f"Custom Headers: {headers}\n")
+                        print(f"Request Body: {request_body}\n")
+                        print(f"Got Reponse {request_id}:\n")
+                        print(f"URL: {url}\n")
+                        print(f"Response Body:\n {await response.text()}\n")
+                        print(f"Response Headers:\n {response.headers}\n")
+                    if response.status not in status_codes:
+                        status_codes[response.status] = 1
+                    else:
+                        status_codes[response.status] += 1
+                    total_requests += 1
+                    if args.waf:
+                        check_waf(response.headers, await response.text())
+            else:
+                # Send the request without a request body
+                async with session.request(method, url, headers=headers) as response:
+                    elapsed_time = time.perf_counter() - start_time
+                    if args.verbose:
+                        print(f"Request {request_id} sent. Status: {response.status} in {elapsed_time:.2f} seconds\n")
+                        print(f"Custom Headers: {headers}\n")
+                        print(f"Request Body: {request_body}\n")
+                        print(f"Got Reponse {request_id}:\n")
+                        print(f"URL: {url}\n")
+                        print(f"Response Body:\n {await response.text()}\n")
+                        print(f"Response Headers:\n {response.headers}\n")
+                    if response.status not in status_codes:
+                        status_codes[response.status] = 1
+                    else:
+                        status_codes[response.status] += 1
+                    total_requests += 1
+                    if args.waf:
+                        check_waf(response.headers, await response.text())
+            if args.log:
+                if not os.path.exists("./logs"):
+                    os.makedirs("./logs")
+                log_file_path = f"./logs/{url_file_name}.log"
+                with open(log_file_path, "a") as log_file:
+                    if args.verbose:
+                        log_file.write(f"Response body:\n{response.text}\n")
+                    log_file.write(f"{method} Request {request_id} sent. Response {response_id} received with status code {response.status} in {elapsed_time:.2f} seconds\n")
 
-        # except Exception as e:
-        #     print(colored(f"Error: {e}", 'red', attrs=['bold']))
-        #     total_requests += 1
-        #     exit(1)
+        except Exception as e:
+            print(colored(f"Error: {e}", 'red', attrs=['bold']))
+            total_requests += 1
+            exit(1)
 
             if args.log:
                 if not os.path.exists("./logs"):
