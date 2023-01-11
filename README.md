@@ -1,15 +1,15 @@
-# pyrate
+## 🔥 What is Pyrate?
 
 pyrate project is designed to test the effectiveness of these measures by sending requests to a web application and checking whether they are blocked by the rate-limiting and WAF mechanisms. The code is using the asyncio library to handle concurrency and make many requests at the same time, which could help simulate real-world traffic more effectively.
 
-## Installation
+## 📦 Installation
 
 1. [Install Python](https://wiki.python.org/moin/BeginnersGuide/Download)
 2. `git clone` this repo
 3. `cd` into the repo
 4. `pip install -r requirements.txt`
 
-## Usage
+## 💡 Usage
 
 The `pyrate` application takes few arguments:
 
