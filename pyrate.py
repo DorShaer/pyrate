@@ -15,7 +15,7 @@ from lib.waf_signatures import check_waf
 from lib.waf_signatures import wafs
 
 # Author: Dor Shaer
-# Version: 1.5
+# Version: 1.6.1
 #
 # This script sends HTTP requests to a specified URL at a specified rate and
 # reports the status codes of the responses.
@@ -81,7 +81,9 @@ print(colored("[+] External IP: " + ip, 'blue', attrs=['bold']))
 num_requests = rate * 60
 print(colored("[+] Total requests: " + str(num_requests), 'blue', attrs=['bold']))
 
-# Extract the base name of the URL
+print(colored("[+] Testing " + url, 'blue', attrs=['bold']))
+
+# Extract the base name of the URL for the log file
 url_file_name = re.search(r"https?://([^/\.]+)\.([^/]+)", url).group(1)
 
 
