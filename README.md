@@ -47,17 +47,17 @@ the number of requests availabe in 1 minute.
 
 Debug files will be saved to the `logs/[hostname]` folder.
 
-### Using Docker
+## 🐋 Using Docker
 
 1. git clone this repo
 2. `cd` into the repo
 3. `docker build -t pyrate .`
 4. `docker run -it pyrate --url https://example.com/`
 
-## Contributors
+## 🏆 Contributors
 
 - [Dor Shaer](https://github.com/DorShaer) - creator and maintainer
 
-## Credits
+## 🙏 Credits
   All WAF signatures logic were taken from the awesome library wafalyzer
 - https://github.com/NeuraLegion/wafalyzer 
