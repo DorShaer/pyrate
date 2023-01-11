@@ -1,6 +1,6 @@
 # pyrate
 
-Python Rate Limit tester
+pyrate project is designed to test the effectiveness of these measures by sending requests to a web application and checking whether they are blocked by the rate-limiting and WAF mechanisms. The code is using the asyncio library to handle concurrency and make many requests at the same time, which could help simulate real-world traffic more effectively.
 
 ## Installation
 
