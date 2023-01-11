@@ -9,12 +9,13 @@ import requests
 import argparse
 import fake_useragent
 from tqdm import tqdm
-from texttable import Texttable
 from termcolor import colored
-
+from texttable import Texttable
+from lib.waf_signatures import check_waf
+from lib.waf_signatures import wafs
 
 # Author: Dor Shaer
-# Version: 1.4
+# Version: 1.5
 #
 # This script sends HTTP requests to a specified URL at a specified rate and
 # reports the status codes of the responses.
@@ -32,20 +33,28 @@ parser.add_argument("--method", type=str, default="GET", help="HTTP method to us
 parser.add_argument("--rate", type=int, default=5, help="number of requests per second, deafult is 5")
 parser.add_argument("--verbose", action="store_true", help="print the response body for each request")
 parser.add_argument("--random-agent", action="store_true", help="send a random user agent with each request")
+parser.add_argument("--waf", action="store_true", help="append '<script>alert(1)</script>' to the URL and trigger the WAF")
+parser.add_argument("--waf-list", action="store_true", help="print all availabe wafs")
+
 
 
 args = parser.parse_args()
 
-print("###Simple Python Rate Limiting Tester###")
-print("This tool will multiply the numebr of the threads by 60, so it can calculate\nthe number of requests availabe in 1 minute.\n")
-
-
-# Set the number of requests to send per second
 try:
     rate = args.rate
 except ValueError:
     print(colored("Error: Invalid value for rate. Rate must be a positive integer.", 'red', attrs=['bold']))
     exit(1)
+
+# Print a list of the available wafs    
+if args.waf_list:
+    print("Available WAFs: \n")
+    for waf in wafs:
+        print(waf["name"])
+    exit(0)
+
+print("###Simple Python Rate Limiting Tester###")
+print("This tool will multiply the numebr of the threads by 60, so it can calculate\nthe number of requests availabe in 1 minute.\n")
 
 # Set the URL to send the requests to
 url = args.url
@@ -62,15 +71,15 @@ else:
     if not url.startswith("http://") and not url.startswith("https://"):
         print(colored("Could not get HTTP/HTTPS in the arguments, adding https:// by default" , 'yellow', attrs=['bold']))
         url = "https://" + url
-
+if not url.endswith("/"):
+    url += "/"
 #Get the external IP
 r = requests.get("https://api.ipify.org")
 ip = r.text
-print(colored("[+] External IP: " + ip, 'green', attrs=['bold']))
-
+print(colored("[+] External IP: " + ip, 'blue', attrs=['bold']))
 # Calculate the total number of requests to send
 num_requests = rate * 60
-print(colored("[+] Total requests: " + str(num_requests), 'green', attrs=['bold']))
+print(colored("[+] Total requests: " + str(num_requests), 'blue', attrs=['bold']))
 
 # Extract the base name of the URL
 url_file_name = re.search(r"https?://([^/\.]+)\.([^/]+)", url).group(1)
@@ -79,6 +88,12 @@ url_file_name = re.search(r"https?://([^/\.]+)\.([^/]+)", url).group(1)
 status_codes = {}
 total_requests = 0
 
+#If --waf was set add "<script>alert(1)</script>" to the URL
+if args.waf:
+    if not url.endswith("/"):
+        url += "/"
+    url += str("?id=<script>alert(1)</script>")
+    print(colored("Started Job: Running WAF Checks", 'blue', attrs=['bold']))
 
 # Send the requests
 async def send_request(method, request_body=None):
@@ -87,55 +102,66 @@ async def send_request(method, request_body=None):
     response_id = request_id
     start_time = time.perf_counter()
     async with aiohttp.ClientSession() as session:
-        try:
-            # Parse the headers argument into a dictionary
-            headers = {x.split(":")[0]: x.split(":")[1] for x in args.headers} if args.headers else {}
+        # try:
+        # Parse the headers argument into a dictionary
+        headers = {x.split(":")[0]: x.split(":")[1] for x in args.headers} if args.headers else {}
 
-            # Set the user agent to a random user agent if the --random-agent flag is set
-            if args.random_agent:
-                headers["User-Agent"] = fake_useragent.UserAgent().random   
+        # Set the user agent to a random user agent if the --random-agent flag is set
+        if args.random_agent:
+            headers["User-Agent"] = fake_useragent.UserAgent().random   
 
-            #Check if request body argument specified
-            if request_body is not None:
-                # Send the request with the specified request body
-                async with session.request(method, url, headers=headers, data=request_body) as response:
-                    elapsed_time = time.perf_counter() - start_time
-                    if args.verbose:
-                        print(f"Request {request_id} sent. Status: {response.status} in {elapsed_time:.2f} seconds\n")
-                        print(f"Got Reponse {request_id}:\n")
-                        print(f"Response Body: {await response.text()}\n")
-                    if response.status not in status_codes:
-                        status_codes[response.status] = 1
-                    else:
-                        status_codes[response.status] += 1
-                    total_requests += 1
-            else:
-                # Send the request without a request body
-                async with session.request(method, url, headers=headers) as response:
-                    elapsed_time = time.perf_counter() - start_time
-                    if args.verbose:
-                        print(f"Request {request_id} sent. Status: {response.status} in {elapsed_time:.2f} seconds\n")
-                        print(f"Got Reponse {request_id}:\n")
-                        print(f"Response Body: {await response.text()}\n")
-                    if response.status not in status_codes:
-                        status_codes[response.status] = 1
-                    else:
-                        status_codes[response.status] += 1
-                    total_requests += 1
+        #Check if request body argument specified
+        if request_body is not None:
+            # Send the request with the specified request body
+            async with session.request(method, url, headers=headers, data=request_body) as response:
+                elapsed_time = time.perf_counter() - start_time
+                if args.verbose:
+                    print(f"Request {request_id} sent. Status: {response.status} in {elapsed_time:.2f} seconds\n")
+                    print(f"Custom Headers: {headers}\n")
+                    print(f"Request Body: {request_body}\n")
+                    print(f"Got Reponse {request_id}:\n")
+                    print(f"URL: {url}\n")
+                    print(f"Response Body:\n {await response.text()}\n")
+                    print(f"Response Headers:\n {response.headers}\n")
+                if response.status not in status_codes:
+                    status_codes[response.status] = 1
+                else:
+                    status_codes[response.status] += 1
+                total_requests += 1
+                if args.waf:
+                    check_waf(response.headers, await response.text())
+        else:
+            # Send the request without a request body
+            async with session.request(method, url, headers=headers) as response:
+                elapsed_time = time.perf_counter() - start_time
+                if args.verbose:
+                    print(f"Request {request_id} sent. Status: {response.status} in {elapsed_time:.2f} seconds\n")
+                    print(f"Custom Headers: {headers}\n")
+                    print(f"Request Body: {request_body}\n")
+                    print(f"Got Reponse {request_id}:\n")
+                    print(f"URL: {url}\n")
+                    print(f"Response Body:\n {await response.text()}\n")
+                    print(f"Response Headers:\n {response.headers}\n")
+                if response.status not in status_codes:
+                    status_codes[response.status] = 1
+                else:
+                    status_codes[response.status] += 1
+                total_requests += 1
+                if args.waf:
+                    check_waf(response.headers, await response.text())
+        if args.log:
+            if not os.path.exists("./logs"):
+                os.makedirs("./logs")
+            log_file_path = f"./logs/{url_file_name}.log"
+            with open(log_file_path, "a") as log_file:
+                if args.verbose:
+                    log_file.write(f"Response body:\n{response.text}\n")
+                log_file.write(f"{method} Request {request_id} sent. Response {response_id} received with status code {response.status} in {elapsed_time:.2f} seconds\n")
 
-            if args.log:
-                if not os.path.exists("./logs"):
-                    os.makedirs("./logs")
-                log_file_path = f"./logs/{url_file_name}.log"
-                with open(log_file_path, "a") as log_file:
-                    if args.verbose:
-                        log_file.write(f"Response body:\n{response.text}\n")
-                    log_file.write(f"{method} Request {request_id} sent. Response {response_id} received with status code {response.status} in {elapsed_time:.2f} seconds\n")
-        
-        except Exception as e:
-            print(colored(f"Error: {e}", 'red', attrs=['bold']))
-            total_requests += 1
-            exit(1)
+        # except Exception as e:
+        #     print(colored(f"Error: {e}", 'red', attrs=['bold']))
+        #     total_requests += 1
+        #     exit(1)
 
             if args.log:
                 if not os.path.exists("./logs"):
@@ -151,7 +177,6 @@ async def main(start_index=0):
         for i in range(start_index, num_requests):
             await asyncio.gather(send_request(method=args.method, request_body=args.body))
             pbar.update(1)
-
 if __name__ == "__main__":
     try:
         asyncio.run(main())
@@ -161,6 +186,7 @@ if __name__ == "__main__":
             asyncio.run(main())
         else:
             print(colored("Exiting... ", 'red', attrs=['bold']))
+            time.sleep(2)
             exit()
 
 
