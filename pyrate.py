@@ -35,7 +35,7 @@ parser.add_argument("--verbose", action="store_true", help="print the response b
 parser.add_argument("--random-agent", action="store_true", help="send a random user agent with each request")
 parser.add_argument("--waf", action="store_true", help="append '<script>alert(1)</script>' to the URL and trigger the WAF")
 parser.add_argument("--waf-list", action="store_true", help="print all availabe wafs")
-parser.add_argument("--insecure", action="store_true", help="send requests with verify=False")
+parser.add_argument("--insecure", action="store_true", help="bypass certificate checks")
 
 
 args = parser.parse_args()
