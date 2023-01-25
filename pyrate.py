@@ -35,7 +35,7 @@ parser.add_argument("--verbose", action="store_true", help="print the response b
 parser.add_argument("--random-agent", action="store_true", help="send a random user agent with each request")
 parser.add_argument("--waf", action="store_true", help="append '<script>alert(1)</script>' to the URL and trigger the WAF")
 parser.add_argument("--waf-list", action="store_true", help="print all availabe wafs")
-
+parser.add_argument("--insecure", action="store_true", help="send requests with verify=False")
 
 
 args = parser.parse_args()
@@ -99,11 +99,15 @@ if args.waf:
 
 # Send the requests
 async def send_request(method, request_body=None):
+    if args.insecure:
+        conn = aiohttp.TCPConnector(ssl=False)
+    else:
+        conn = aiohttp.TCPConnector()
     global total_requests
     request_id = secrets.token_hex(3)  # Generate a unique ID for the request
     response_id = request_id
     start_time = time.perf_counter()
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(connector=conn) as session:
         try:
             # Parse the headers argument into a dictionary
             headers = {x.split(":")[0]: x.split(":")[1] for x in args.headers} if args.headers else {}
