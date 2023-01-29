@@ -33,20 +33,20 @@ The `pyrate` application takes few arguments:
 This tool will multiply the numebr of the threads by 60, so it can calculate
 the number of requests availabe in 1 minute.
 
-[+] External IP: X.X.X.X
-[+] Total requests: 60
-[+] Testing https://brokencrystals.com
-[+] Detected WAF: Cloudflare 
+[info] External IP: X.X.X.X
+[info] Total requests: 60
+[info] Testing https://brokencrystals.com
+[success] Detected WAF: Cloudflare WAF
 100%|██████████████████████████████████████████████████ [00:16<00:00,  3.58it/s]
 +------------------------------+
 | Total Requests   Status Code |
 +==============================+
-| 60               200         |
+| 25               200         |
 +------------------------------+
-
+[logging] debug files were saved in: ./logs/brokencrystals.log
 ```
 
-Debug files will be saved to the `logs/[hostname]` folder.
+All debug files will be saved to the `logs/[hostname]` folder.
 
 ## 🐋 Using Docker
 
