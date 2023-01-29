@@ -84,7 +84,7 @@ r = requests.get("https://api.ipify.org")
 ip = r.text
 print(colored("[info] External IP: " + ip, 'blue', attrs=['bold']))
 # Calculate the total number of requests to send
-num_requests = rate * 5
+num_requests = rate * 10
 print(colored("[info] Total requests: " + str(num_requests), 'blue', attrs=['bold']))
 
 print(colored("[info] Testing " + url, 'blue', attrs=['bold']))
@@ -214,3 +214,5 @@ if __name__ == "__main__":
         table.add_row([count, status_code])
     table.set_deco(Texttable.BORDER | Texttable.HEADER)
     print(table.draw())
+    if args.log:
+        print(colored(f"[logging] debug files were saved in: " + "./logs/"+url_file_name+".log", "magenta", attrs=["bold"]))
