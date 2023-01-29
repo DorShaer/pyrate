@@ -34,7 +34,7 @@ This tool will multiply the numebr of the threads by 60, so it can calculate
 the number of requests availabe in 1 minute.
 
 [info] External IP: X.X.X.X
-[info] Total requests: 60
+[info] Total requests: 25
 [info] Testing https://brokencrystals.com
 [success] Detected WAF: Cloudflare WAF
 100%|██████████████████████████████████████████████████ [00:16<00:00,  3.58it/s]
