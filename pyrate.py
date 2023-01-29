@@ -16,7 +16,7 @@ from lib.waf_signatures import check_waf
 from lib.waf_signatures import wafs
 
 # Author: Dor Shaer
-# Version: 1.6.1
+# Version: 1.6.2
 #
 # This script sends HTTP requests to a specified URL at a specified rate and
 # reports the status codes of the responses.
