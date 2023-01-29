@@ -1134,12 +1134,8 @@ def check_waf(response_headers, response_body):
         if waf["check_function"](response_headers, response_body):
             if not waf_detected:
                 waf_detected = True
-                print(colored("[+] Detected WAF: " + waf["name"] + "\n", 'green', attrs=['bold']))
+                print(colored("[sucess] Detected WAF signature: " + waf["name"] + "\n", 'green', attrs=['bold']))
                 break
     if not waf_detected and not waf_message_printed:
         waf_message_printed = True
-        print(colored("[+] No WAF detected", 'yellow', attrs=['bold']))
-
-
-
-       	
+        print(colored("[detection] No WAF detected", 'yellow', attrs=['bold']))
