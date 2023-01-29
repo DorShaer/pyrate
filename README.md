@@ -23,7 +23,7 @@ The `pyrate` application takes few arguments:
 8. `--random-agent` - send a random user agent with each request
 9. `--waf` - append '<script>alert(1)</script>' to the URL and trigger the WAF
 10. `--waf-list` - list all available wafs
-
+11. `--insecure` - bypass certificate checks
 `python3 pyrate --url https://example.com/ --rate 1 --method POST --body "id=1" --headers "Content-Type: application/json" "Authorization:Bearer 12345" --waf`
 
 ```bash
