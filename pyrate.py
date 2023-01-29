@@ -5,8 +5,9 @@ import time
 import secrets
 import asyncio
 import aiohttp
-import requests
+import pyfiglet
 import argparse
+import requests
 import fake_useragent
 from tqdm import tqdm
 from termcolor import colored
@@ -53,8 +54,13 @@ if args.waf_list:
         print(waf["name"])
     exit(0)
 
-print("###Simple Python Rate Limiting Tester###")
-print("This tool will multiply the numebr of the threads by 60, so it can calculate\nthe number of requests availabe in 1 minute.\n")
+art = pyfiglet.figlet_format("pyrate", font = "mini")
+c_art = colored(art, 'yellow')
+print(c_art)
+print(colored("v.1.6.2\n", "yellow"))
+print("Python Rate Limiting Tester")
+print("Created by Dor Shaer aka @kAssofer\n")
+
 
 # Set the URL to send the requests to
 url = args.url
@@ -76,12 +82,12 @@ if not url.endswith("/"):
 #Get the external IP
 r = requests.get("https://api.ipify.org")
 ip = r.text
-print(colored("[+] External IP: " + ip, 'blue', attrs=['bold']))
+print(colored("[info] External IP: " + ip, 'blue', attrs=['bold']))
 # Calculate the total number of requests to send
-num_requests = rate * 60
-print(colored("[+] Total requests: " + str(num_requests), 'blue', attrs=['bold']))
+num_requests = rate * 5
+print(colored("[info] Total requests: " + str(num_requests), 'blue', attrs=['bold']))
 
-print(colored("[+] Testing " + url, 'blue', attrs=['bold']))
+print(colored("[info] Testing " + url, 'blue', attrs=['bold']))
 
 # Extract the base name of the URL for the log file
 url_file_name = re.search(r"https?://([^/\.]+)\.([^/]+)", url).group(1)
@@ -95,7 +101,15 @@ if args.waf:
     if not url.endswith("/"):
         url += "/"
     url += str("?id=<script>alert(1)</script>")
-    print(colored("Started Job: Running WAF Checks", 'blue', attrs=['bold']))
+    print(colored("[info] Started WAF checks", 'blue', attrs=['bold']))
+
+#Check for WAF if --waf was set
+def check_waf_exist():
+    if args.waf:
+        requests.packages.urllib3.disable_warnings()  #Disable the certificate checks to prevent cert issues
+        packet = requests.get(url, verify=False) 
+        check_waf(packet.headers, packet.text)
+check_waf_exist()
 
 # Send the requests
 async def send_request(method, request_body=None):
@@ -107,6 +121,7 @@ async def send_request(method, request_body=None):
     request_id = secrets.token_hex(3)  # Generate a unique ID for the request
     response_id = request_id
     start_time = time.perf_counter()
+
     async with aiohttp.ClientSession(connector=conn) as session:
         try:
             # Parse the headers argument into a dictionary
@@ -134,11 +149,9 @@ async def send_request(method, request_body=None):
                     else:
                         status_codes[response.status] += 1
                     total_requests += 1
-                    if args.waf:
-                        check_waf(response.headers, await response.text())
             else:
                 # Send the request without a request body
-                async with session.request(method, url, headers=headers) as response:
+                async with session.request(method, url, headers=headers) as response:                 
                     elapsed_time = time.perf_counter() - start_time
                     if args.verbose:
                         print(f"Request {request_id} sent. Status: {response.status} in {elapsed_time:.2f} seconds\n")
@@ -153,8 +166,6 @@ async def send_request(method, request_body=None):
                     else:
                         status_codes[response.status] += 1
                     total_requests += 1
-                    if args.waf:
-                        check_waf(response.headers, await response.text())
             if args.log:
                 if not os.path.exists("./logs"):
                     os.makedirs("./logs")
