@@ -31,7 +31,7 @@ parser.add_argument("--body", type=str, help="request body to send with each req
 parser.add_argument("--headers", type=str, nargs='+', help='headers to send with each request separated by space (example: "Content-Type: application/json" "Authorization: Bearer 12345")')
 parser.add_argument("--log", action="store_true", help="save a log file locally in logs folder with the URL as the file name")
 parser.add_argument("--method", type=str, default="GET", help="HTTP method to use, example: --method POST")
-parser.add_argument("--rate", type=int, default=5, help="number of requests per second, deafult is 5")
+parser.add_argument("--rate", type=int, default=6, help="number of requests per second, deafult is 6")
 parser.add_argument("--verbose", action="store_true", help="print the response body for each request")
 parser.add_argument("--random-agent", action="store_true", help="send a random user agent with each request")
 parser.add_argument("--waf", action="store_true", help="append '<script>alert(1)</script>' to the URL and trigger the WAF")
@@ -198,8 +198,8 @@ if __name__ == "__main__":
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        x = input(colored("Ctrl+C Detected, do you wish to stop the scan? [c] - continue , else press enter to quit", 'red', attrs=['bold']))
-        if x.lower() == "c":
+        x = input(colored("Ctrl+C Detected, do you wish to stop the scan? [r] - resume , else press enter to quit", 'red', attrs=['bold']))
+        if x.lower() == "r":
             asyncio.run(main())
         else:
             print(colored("Exiting... ", 'red', attrs=['bold']))
