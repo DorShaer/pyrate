@@ -25,7 +25,7 @@ The `pyrate` application takes few arguments:
 10. `--waf-list` - list all available wafs
 11. `--insecure` - bypass certificate checks
 
-`python3 pyrate --url https://example.com/ --rate 1 --method POST --body "id=1" --headers "Content-Type: application/json" "Authorization:Bearer 12345" --waf`
+`python3 pyrate.py --url https://example.com/ --rate 1 --method POST --body "id=1" --headers "Content-Type: application/json" "Authorization:Bearer 12345" --waf`
 
 ```bash
 ❯ python3 pyrate.py --url https://brokencrystals.com --rate 1 
